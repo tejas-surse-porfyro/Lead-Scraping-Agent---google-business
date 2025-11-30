@@ -1,0 +1,224 @@
+{
+  "name": "lead scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Enter Business Details ",
+        "formDescription": "Enter Business Details to Search.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Business Type",
+              "placeholder": "Cafe",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Location ",
+              "placeholder": "Pune",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Max Results",
+              "fieldType": "number",
+              "placeholder": "20"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3a259236-e75e-4625-b119-2f477a18f032",
+      "name": "On form submission",
+      "webhookId": "a187f5a6-b33c-472c-ab49-44eccd58b9a3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/logical_scrapers~google-map-business-scraper/run-sync-get-dataset-items?token=<Enter Your Token>",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"businessType\": \"{{ $json['Business Type'] }}\",\n  \"location\": \"{{ $json['Location '] }}\",\n  \"maxResults\": {{ $json['Max Results'] }}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "2c273378-a9a6-4a4a-9f57-15c682c0b572",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1FiQz_AKDe5JTSf819DbKJk3oIelDtF6D89JODJyPucY/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FiQz_AKDe5JTSf819DbKJk3oIelDtF6D89JODJyPucY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Category": "={{ $json.category }}",
+            "Rating": "={{ $json.rating }}",
+            "Name ": "={{ $json.name }}",
+            "address": "={{ $json.address }}",
+            "website": "={{ $json.website }}"
+          },
+          "matchingColumns": [
+            "Name "
+          ],
+          "schema": [
+            {
+              "id": "Name ",
+              "displayName": "Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Contact",
+              "displayName": "Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "57234af2-dcc6-463a-b1ed-3ce0c0a64d9b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jMH7LA7MLL3D7Lhx",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## This is Google Lead Scraper \n\n\nwe can add checks here to increase complexity according to our need and we can also integrate our email agent with it \n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "00edcbfc-e26e-42cb-a264-c997e7bd4c6a",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bc95f4e8-8fb5-4dda-9409-88670dbd19a6",
+  "meta": {
+    "instanceId": "5b8dd92b98f6701b265c33738962e013e53026d8bf47de5ccc028139ce1238e0"
+  },
+  "id": "pyIOqhCgDaKwhIrz",
+  "tags": []
+}
